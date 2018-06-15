@@ -24,6 +24,7 @@
 
 import UIKit
 import MessageKit
+import MessageInputBar
 import MapKit
 
 internal class ConversationViewController: MessagesViewController {
