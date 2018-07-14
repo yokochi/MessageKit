@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 
-import Foundation
+import MessageInputBar
 
 /// A protocol that can receive different event notifications from the MessageInputBar.
 public protocol MessageInputBarDelegate: AnyObject {
