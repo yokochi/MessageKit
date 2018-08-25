@@ -70,7 +70,8 @@ final internal class SampleData {
 
     var now = Date()
 
-    let messageTypes = ["Text", "Text", "Text", "AttributedText", "Photo", "Video", "Location", "Emoji"]
+    let messageTypes = ["Text", "Text", "Text", "AttributedText", "Photo", "Video", "Location", "Emoji", "Emoticon"]
+//    let messageTypes = ["Emoticon"]
 
     let attributes = ["Font1", "Font2", "Font3", "Font4", "Color", "Combo"]
 
@@ -90,6 +91,29 @@ final internal class SampleData {
         "😱😱",
         "🎈",
         "🇧🇷"
+    ]
+    
+    let emoticons = [
+        "ʕ•̫͡•ʔ♡ʕ•̫͡•ʔ",
+        "(✿ꈍ。 ꈍ✿)ポッ",
+        "▂▅▇█▓▒(’ω’)▒▓█▇▅▂",
+        "Ꮚ˘̴͈́ꈊ˘̴͈̀Ꮚ⋆✩",
+        "ｷｬ━━━━(ﾟ∀ﾟ)━━━━!!",
+        "✌✌(˵¯̴͒ꇴ¯̴͒˵)✌✌",
+        "(ꏿ᷄౪ ꏿ᷄ ̨ )͞˭̳̳̳˭̳̳̳ˍ̿̿ˍ̿ˌ˳ˏ̇⋅∴༣",
+        "φ(ﾟ-ﾟ=)",
+        "✺◟(∗❛ัᴗ❛ั∗)◞✺",
+        "(⸝⸝⸝ ≧ㅿ＼⸝⸝⸝)//❤\\(⸝⸝⸝°⁻̫° ⸝⸝⸝)",
+        "꒰✩'ω`ૢ✩꒱",
+        "ˁ˙͡˟˙ˀ",
+        "ʕ•͡ɛ•͡ʼʼʔ",
+        "ʕ•̼͛͡•ʕ-̺͛͡•ʔ•̮͛͡•ʔ",
+        "=͟͟͞͞ʕ•̫͡•ʔ =͟͟͞͞ʕ•̫͡•ʔ =͟͟͞͞ʕ•̫͡•ʔ =͟͟͞͞ʕ•̫͡•ʔ",
+        ":.ﾟ٩(๑˘ω˘๑)۶:.｡",
+        "❤⃛♡꒰˘̩̩̩⌣˘̩̩̩⌗꒱",
+        "┗=͟͟͞͞( ˙∀˙)=͟͟͞͞┛",
+        "=͟͟͞͞👉=͟͟͞͞👉=͟͟͞͞👉=͟͟͞͞👉))ु˃̶͈̀ω˂̶͈́ )੭ु⁾⁾",
+        "⁝⁞⁝⁞Ϛ⃘๑•͡ .̫•๑꒜☂⁝⁞⁝⁝"
     ]
 
     func attributedString(with text: String) -> NSAttributedString {
@@ -149,6 +173,7 @@ final internal class SampleData {
         let randomMessageType = Int(arc4random_uniform(UInt32(messageTypes.count)))
         let randomNumberLocation = Int(arc4random_uniform(UInt32(locations.count)))
         let randomNumberEmoji = Int(arc4random_uniform(UInt32(emojis.count)))
+        let randomNumberEmoticon = Int(arc4random_uniform(UInt32(emoticons.count)))
         let uniqueID = NSUUID().uuidString
         let sender = senders[randomNumberSender]
         let date = dateAddingRandomTime()
@@ -169,6 +194,8 @@ final internal class SampleData {
             return MockMessage(location: locations[randomNumberLocation], sender: sender, messageId: uniqueID, date: date)
         case "Emoji":
             return MockMessage(emoji: emojis[randomNumberEmoji], sender: sender, messageId: uniqueID, date: date)
+        case "Emoticon":
+            return MockMessage(text: emoticons[randomNumberEmoticon], sender: sender, messageId: uniqueID, date: date)
         default:
             fatalError("Unrecognized mock message type")
         }
