@@ -529,8 +529,7 @@ open class MessageInputBar: UIView {
         let topStackViewHeight = topStackView.arrangedSubviews.count > 0 ? topStackView.bounds.height : 0
         let bottomStackViewHeight = bottomStackView.arrangedSubviews.count > 0 ? bottomStackView.bounds.height : 0
         let verticalStackViewHeight = topStackViewHeight + bottomStackViewHeight
-        let mentionViewHeight = maxMentionViewHeight > 0 ? mentionView.bounds.height : 0
-        let requiredHeight = inputTextViewHeight + totalPadding + verticalStackViewHeight + mentionViewHeight
+        let requiredHeight = inputTextViewHeight + totalPadding + verticalStackViewHeight + maxMentionViewHeight
         return CGSize(width: bounds.width, height: requiredHeight)
     }
     
