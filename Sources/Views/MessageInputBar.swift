@@ -32,6 +32,26 @@ open class MessageInputBar: UIView {
     /// A delegate to broadcast notifications from the MessageInputBar
     open weak var delegate: MessageInputBarDelegate?
     
+    open var mentionView: UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
+    
+    /// The maximum height that the MentionView can reach
+    open var maxMentionViewHeight: CGFloat = 0 {
+        didSet {
+            mentionViewHeightAnchor?.constant = maxMentionViewHeight
+            invalidateIntrinsicContentSize()
+        }
+    }
+    
+    open var mentionViewPadding: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) {
+        didSet {
+            updateMentionViewPadding()
+        }
+    }
+    
     /// The background UIView anchored to the bottom, left, and right of the MessageInputBar
     /// with a top anchor equal to the bottom of the top InputStackView
     open var backgroundView: UIView = {
@@ -261,6 +281,8 @@ open class MessageInputBar: UIView {
     
     // MARK: - Auto-Layout Management
     
+    private var mentionViewHeightAnchor: NSLayoutConstraint?
+    private var mentionViewLayoutSet: NSLayoutConstraintSet?
     private var textViewLayoutSet: NSLayoutConstraintSet?
     private var textViewHeightAnchor: NSLayoutConstraint?
     private var topStackViewLayoutSet: NSLayoutConstraintSet?
@@ -324,6 +346,7 @@ open class MessageInputBar: UIView {
     /// Adds all of the subviews
     private func setupSubviews() {
         
+        addSubview(mentionView)
         addSubview(backgroundView)
         addSubview(topStackView)
         addSubview(contentView)
@@ -340,13 +363,22 @@ open class MessageInputBar: UIView {
     private func setupConstraints() {
         
         // The constraints within the MessageInputBar
-        separatorLine.addConstraints(topAnchor, left: leftAnchor, right: rightAnchor)
+        separatorLine.addConstraints(mentionView.bottomAnchor, left: leftAnchor, right: rightAnchor)
         backgroundViewBottomAnchor = backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor)
         backgroundViewBottomAnchor?.isActive = true
         backgroundView.addConstraints(topStackView.bottomAnchor, left: leftAnchor, right: rightAnchor)
         
+
+        mentionViewHeightAnchor = mentionView.heightAnchor.constraint(equalToConstant: maxMentionViewHeight)
+        mentionViewLayoutSet = NSLayoutConstraintSet(
+            top:    mentionView.topAnchor.constraint(equalTo: topAnchor, constant: mentionViewPadding.top),
+            bottom: mentionView.bottomAnchor.constraint(equalTo: topStackView.topAnchor, constant: mentionViewPadding.top),
+            left:   mentionView.leftAnchor.constraint(equalTo: leftAnchor, constant: mentionViewPadding.left),
+            right:  mentionView.rightAnchor.constraint(equalTo: rightAnchor, constant: mentionViewPadding.right)
+        )
+        
         topStackViewLayoutSet = NSLayoutConstraintSet(
-            top:    topStackView.topAnchor.constraint(equalTo: topAnchor, constant: topStackViewPadding.top),
+            top:    topStackView.topAnchor.constraint(equalTo: mentionView.bottomAnchor, constant: topStackViewPadding.top),
             bottom: topStackView.bottomAnchor.constraint(equalTo: contentView.topAnchor, constant: -padding.top),
             left:   topStackView.leftAnchor.constraint(equalTo: leftAnchor, constant: topStackViewPadding.left),
             right:  topStackView.rightAnchor.constraint(equalTo: rightAnchor, constant: -topStackViewPadding.right)
@@ -433,6 +465,14 @@ open class MessageInputBar: UIView {
         windowAnchor?.constant = -padding.bottom
     }
     
+    /// Updates the constraint constants that correspond to the mentionViewPadding UIEdgeInsets
+    private func updateMentionViewPadding() {
+        mentionViewLayoutSet?.top?.constant = mentionViewPadding.top
+        mentionViewLayoutSet?.left?.constant = mentionViewPadding.left
+        mentionViewLayoutSet?.right?.constant = -mentionViewPadding.right
+        mentionViewLayoutSet?.bottom?.constant = -mentionViewPadding.bottom
+    }
+    
     /// Updates the constraint constants that correspond to the textViewPadding UIEdgeInsets
     private func updateTextViewPadding() {
         textViewLayoutSet?.top?.constant = textViewPadding.top
@@ -489,7 +529,8 @@ open class MessageInputBar: UIView {
         let topStackViewHeight = topStackView.arrangedSubviews.count > 0 ? topStackView.bounds.height : 0
         let bottomStackViewHeight = bottomStackView.arrangedSubviews.count > 0 ? bottomStackView.bounds.height : 0
         let verticalStackViewHeight = topStackViewHeight + bottomStackViewHeight
-        let requiredHeight = inputTextViewHeight + totalPadding + verticalStackViewHeight
+        let mentionViewHeight = mentionView.bounds.height
+        let requiredHeight = inputTextViewHeight + totalPadding + verticalStackViewHeight + mentionViewHeight
         return CGSize(width: bounds.width, height: requiredHeight)
     }
     
@@ -547,6 +588,8 @@ open class MessageInputBar: UIView {
     
     /// Activates the NSLayoutConstraintSet's
     private func activateConstraints() {
+        mentionViewLayoutSet?.activate()
+        mentionViewHeightAnchor?.isActive = true
         contentViewLayoutSet?.activate()
         textViewLayoutSet?.activate()
         leftStackViewLayoutSet?.activate()
@@ -557,6 +600,8 @@ open class MessageInputBar: UIView {
     
     /// Deactivates the NSLayoutConstraintSet's
     private func deactivateConstraints() {
+        mentionViewLayoutSet?.deactivate()
+        mentionViewHeightAnchor?.isActive = false
         contentViewLayoutSet?.deactivate()
         textViewLayoutSet?.deactivate()
         leftStackViewLayoutSet?.deactivate()
