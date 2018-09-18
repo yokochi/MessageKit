@@ -306,7 +306,7 @@ extension ConversationViewController: MessagesDisplayDelegate {
     }
 
     func enabledDetectors(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> [DetectorType] {
-        return [.url, .address, .phoneNumber, .date, .transitInformation]
+        return [.url, .address, .phoneNumber, .date, .transitInformation, .customMention]
     }
 
     // MARK: - All Messages

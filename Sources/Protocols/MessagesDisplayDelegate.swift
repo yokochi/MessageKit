@@ -161,6 +161,16 @@ public protocol MessagesDisplayDelegate: AnyObject {
     ///   - messagesCollectionView: The `MessagesCollectionView` in which this cell will be displayed.
     func configureMediaMessageImageView(_ imageView: UIImageView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView)
 
+    /// Set mention labels
+    ///
+    /// - Parameters:
+    ///   - message: A `MessageType` with a `MessageKind` case of `.text` or `.attributedText` to which the detectors will apply.
+    ///   - indexPath: The `IndexPath` of the cell.
+    ///   - messagesCollectionView: The `MessagesCollectionView` in which this cell will be displayed.
+    ///
+    /// - Note:
+    ///   This method returns an empty array by default.
+    func mentionLabels(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> [String]
 }
 
 public extension MessagesDisplayDelegate {
@@ -209,6 +219,10 @@ public extension MessagesDisplayDelegate {
 
     func detectorAttributes(for detector: DetectorType, and message: MessageType, at indexPath: IndexPath) -> [NSAttributedStringKey: Any] {
         return MessageLabel.defaultAttributes
+    }
+    
+    func mentionLabels(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> [String] {
+        return []
     }
 
     // MARK: - Location Messages Defaults

@@ -56,7 +56,12 @@ public protocol MessageLabelDelegate: AnyObject {
     /// - Parameters:
     ///   - transitInformation: The selected transit information.
     func didSelectTransitInformation(_ transitInformation: [String: String])
-
+    
+    /// Triggered when a tap occurs on a detected Custom mention.
+    ///
+    /// - Parameters:
+    ///   - mention: The selected mention.
+    func didSelectCustomMention(_ mention: NSRegularExpression)
 }
 
 public extension MessageLabelDelegate {
@@ -71,4 +76,5 @@ public extension MessageLabelDelegate {
     
     func didSelectTransitInformation(_ transitInformation: [String: String]) {}
 
+    func didSelectCustomMention(_ mention: NSRegularExpression) {}
 }

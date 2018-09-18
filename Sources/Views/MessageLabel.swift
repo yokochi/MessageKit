@@ -56,6 +56,8 @@ open class MessageLabel: UILabel {
     // MARK: - Public Properties
 
     open weak var delegate: MessageLabelDelegate?
+    
+    open var customMentionLabels: [String] = []
 
     open var enabledDetectors: [DetectorType] = [] {
         didSet {
@@ -134,6 +136,8 @@ open class MessageLabel: UILabel {
     open internal(set) var urlAttributes: [NSAttributedStringKey: Any] = defaultAttributes
     
     open internal(set) var transitInformationAttributes: [NSAttributedStringKey: Any] = defaultAttributes
+    
+    open internal(set) var customMentionAttributes: [NSAttributedStringKey: Any] = defaultAttributes
 
     public func setAttributes(_ attributes: [NSAttributedStringKey: Any], detector: DetectorType) {
         switch detector {
@@ -147,6 +151,8 @@ open class MessageLabel: UILabel {
             urlAttributes = attributes
         case .transitInformation:
             transitInformationAttributes = attributes
+        case .customMention:
+            customMentionAttributes = attributes
         }
         if isConfiguring {
             attributesNeedUpdate = true
@@ -276,6 +282,8 @@ open class MessageLabel: UILabel {
             return urlAttributes
         case .transitInformation:
             return transitInformationAttributes
+        case .customMention:
+            return customMentionAttributes
         }
 
     }
@@ -292,6 +300,8 @@ open class MessageLabel: UILabel {
             return urlAttributes
         case .transitInformation:
             return transitInformationAttributes
+        case .regularExpression:
+            return customMentionAttributes
         default:
             fatalError(MessageKitError.unrecognizedCheckingResult)
         }
@@ -302,10 +312,11 @@ open class MessageLabel: UILabel {
     private func parse(text: NSAttributedString) -> [NSTextCheckingResult] {
         guard enabledDetectors.isEmpty == false else { return [] }
         let checkingTypes = enabledDetectors.reduce(0) { $0 | $1.textCheckingType.rawValue }
+        
         let detector = try? NSDataDetector(types: checkingTypes)
         let range = NSRange(location: 0, length: text.length)
         let matches = detector?.matches(in: text.string, options: [], range: range) ?? []
-
+        
         guard enabledDetectors.contains(.url) else {
             return matches
         }
@@ -318,7 +329,16 @@ open class MessageLabel: UILabel {
             let result = NSTextCheckingResult.linkCheckingResult(range: range, url: url)
             results.append(result)
         }
-
+        
+        for name in customMentionLabels {
+            let patternDetector = try? NSRegularExpression(pattern: name, options: [])
+            let matchesRegex = patternDetector?.matches(in: text.string, options: [], range: range) ?? []
+            if !matchesRegex.isEmpty {
+                results += matchesRegex
+            }
+        }
+        
+                
         return results
     }
 
@@ -354,7 +374,11 @@ open class MessageLabel: UILabel {
                 let tuple: (NSRange, MessageTextCheckingType) = (result.range, .transitInfoComponents(result.components))
                 ranges.append(tuple)
                 rangesForDetectors.updateValue(ranges, forKey: .transitInformation)
-
+            case .regularExpression:
+                var ranges = rangesForDetectors[.customMention] ?? []
+                let tuple: (NSRange, MessageTextCheckingType) = (result.range, .regularExpression(result.regularExpression))
+                ranges.append(tuple)
+                rangesForDetectors.updateValue(ranges, forKey: .customMention)
             default:
                 fatalError("Received an unrecognized NSTextCheckingResult.CheckingType")
             }
@@ -428,6 +452,9 @@ open class MessageLabel: UILabel {
                 transformedTransitInformation[key.rawValue] = value
             }
             handleTransitInformation(transformedTransitInformation)
+        case let .regularExpression(customMention):
+            guard let mention = customMention else { return }
+            handleCustomMention(mention)
         }
     }
     
@@ -451,6 +478,10 @@ open class MessageLabel: UILabel {
         delegate?.didSelectTransitInformation(components)
     }
     
+    private func handleCustomMention(_ mention: NSRegularExpression) {
+        delegate?.didSelectCustomMention(mention)
+    }
+    
 }
 
 private enum MessageTextCheckingType {
@@ -459,4 +490,5 @@ private enum MessageTextCheckingType {
     case phoneNumber(String?)
     case link(URL?)
     case transitInfoComponents([NSTextCheckingKey: String]?)
+    case regularExpression(NSRegularExpression?)
 }

@@ -67,6 +67,9 @@ open class TextMessageCell: MessageContentCell {
         guard let displayDelegate = messagesCollectionView.messagesDisplayDelegate else {
             fatalError(MessageKitError.nilMessagesDisplayDelegate)
         }
+        
+        let mentionLabels = displayDelegate.mentionLabels(for: message, at: indexPath, in: messagesCollectionView)
+        messageLabel.customMentionLabels = mentionLabels
 
         let enabledDetectors = displayDelegate.enabledDetectors(for: message, at: indexPath, in: messagesCollectionView)
 

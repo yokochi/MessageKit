@@ -31,6 +31,7 @@ public enum DetectorType {
     case phoneNumber
     case url
     case transitInformation
+    case customMention
 
     // MARK: - Not supported yet
 
@@ -45,6 +46,7 @@ public enum DetectorType {
         case .phoneNumber: return .phoneNumber
         case .url: return .link
         case .transitInformation: return .transitInformation
+        case .customMention: return .regularExpression
         }
     }
 
